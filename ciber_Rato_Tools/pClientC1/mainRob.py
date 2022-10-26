@@ -97,6 +97,8 @@ class MyRob(CRobLinkAngs):
                 self.driveMotors(0.15,-0.09)
             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                 self.driveMotors(0.15,-0.15)
+            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                self.driveMotors(-0.05,-0.05)
             else:
                 self.driveMotors(0.05,0.05)
 
