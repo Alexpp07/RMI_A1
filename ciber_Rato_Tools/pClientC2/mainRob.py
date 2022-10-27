@@ -1,4 +1,5 @@
 
+from random import randint
 import sys
 
 from traitlets import Integer
@@ -31,9 +32,8 @@ class MyRob(CRobLinkAngs):
         state = 'stop'
         stopped_state = 'run'
 
-        
-
         traceMap = []
+
         for x in range(21):
             minimap = []
             for y in range(49):
@@ -44,6 +44,7 @@ class MyRob(CRobLinkAngs):
 
         posInitialX = ''
         posInitialY = ''
+        count = 0
 
         while True:
             f = open("minimap.txt", 'w')
@@ -63,8 +64,6 @@ class MyRob(CRobLinkAngs):
             x = int(posMidX) - int(round(difX,0))
             y = int(posMidY) + int(round(difY,0))
 
-            print(f"X:  {x} = {int(posMidX)} ({posMidX}) + {int(difX)} ({difX})")
-
             if -5 <= self.measures.compass <= 5: #DIREITA
                 if traceMap[y][x]==' ' and (traceMap[y][x-1]==' ' or traceMap[y][x-1]=='I') and (traceMap[y][x+1]==' ' or traceMap[y][x+1]=='I') and (traceMap[y-1][x]==' ' or traceMap[y-1][x]=='I') and (traceMap[y+1][x]==' ' or traceMap[y+1][x]=='I'):
                     traceMap[y][x] = '-'
@@ -78,7 +77,7 @@ class MyRob(CRobLinkAngs):
                 if traceMap[y][x]==' ' and (traceMap[y][x-1]==' ' or traceMap[y][x-1]=='I') and (traceMap[y][x+1]==' ' or traceMap[y][x+1]=='I') and (traceMap[y-1][x]==' ' or traceMap[y-1][x]=='I') and (traceMap[y+1][x]==' ' or traceMap[y+1][x]=='I'):
                  traceMap[y][x] = '|'
 
-            # print(traceMap)
+            # print(allMap)
 
             for x in range(21):
                 for y in range(49):
@@ -103,7 +102,8 @@ class MyRob(CRobLinkAngs):
                     state='wait'
                 if self.measures.ground==0:
                     self.setVisitingLed(True)
-                self.wander()
+                count+=1
+                self.wander(traceMap,posInitialX,posInitialY,count)
             elif state=='wait':
                 self.setReturningLed(True)
                 if self.measures.visitingLed==True:
@@ -116,14 +116,19 @@ class MyRob(CRobLinkAngs):
                     self.setVisitingLed(False)
                 if self.measures.returningLed==True:
                     self.setReturningLed(False)
-                self.wander()
+                count+=1
+                self.wander(traceMap,posInitialX,posInitialY,count)
             
 
-    def wander(self):
+    def wander(self,traceMap,posInitialX,posInitialY,count):
         center_id = 0
         left_id = 1
         right_id = 2
         back_id = 3
+
+        posMidX = 25
+        posMidY = 11
+
         if    self.measures.irSensor[center_id] > 5.0\
            or self.measures.irSensor[left_id]   > 5.0\
            or self.measures.irSensor[right_id]  > 5.0\
@@ -137,27 +142,298 @@ class MyRob(CRobLinkAngs):
             print('Rotate slowly left')
             self.driveMotors(0.0,0.1)
         else:
-            print('Go')
-            print(f"LINE SENSOR -> {self.measures.lineSensor}")
-            print(f"IR SENSOR -> {self.measures.irSensor}")
-            print(f"COMPASS -> {self.measures.compass}")
-            print(f"GROUND -> {self.measures.ground}")
-            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.09,0.09)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.07,0.09)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.09,0.07)
-            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
-                self.driveMotors(-0.06,0.06)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
-                self.driveMotors(-0.06,0.09)
-            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.09,-0.06)
-            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
-                self.driveMotors(0.09,-0.09)
-            else:
-                self.driveMotors(0.05,0.05)
+            difX = posInitialX - self.measures.x
+            difY = posInitialY - self.measures.y
+
+            x = int(posMidX) - int(round(difX,0))
+            y = int(posMidY) + int(round(difY,0))
+
+            if count>=1000: # DEPOIS DE ELE FAZER 1000 MEDIÇÕES E ANDAR UM BOCADO PELO CAMINHO, COMEÇA A ANALISAR OS CAMINHOS ONDE JÁ ESTEVE
+                # SE ENCONTRAR CAMINHO PARA A DIREITA E PARA A ESQUERDA
+                # SE O DA DIREITA ESTIVER EXPLORADO, ELE VAI PARA A ESQUERDA E VICE VERSA
+                if self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                    if (-5 <= self.measures.compass <= 5): # SENTIDO DO MOVIMENTO - DIREITA
+                        if traceMap[y-1][x] == '|' and traceMap[y+1][x] == '|': # CAMINHO DE CIMA E BAIXO ESTÁ EXPLORADO
+                            number = randint(0,15)
+                            if number<4:
+                                self.driveMotors(-0.15,0.15)
+                            elif number<11:
+                                self.driveMotors(0.15,0.15)
+                            elif number<16:
+                                self.driveMotors(0.15,-0.15)
+                        elif traceMap[y-1][x] == '|': # CAMINHO DE CIMA ESTÁ EXPLORADO
+                            self.driveMotors(0.10,-0.10)
+                        elif traceMap[y+1][x] == '|': # CAMINHO DE BAIXO ESTÁ EXPLORADO
+                            self.driveMotors(-0.10,0.10)
+                        else:
+                            self.driveMotors(-0.15,0.15)
+                    elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): # SENTIDO DO MOVIMENTO - ESQUERDA
+                        if traceMap[y-1][x] == '|' and traceMap[y+1][x] == '|': # CAMINHO DE CIMA E BAIXO ESTÁ EXPLORADO
+                            number = randint(0,15)
+                            if number<4:
+                                self.driveMotors(-0.15,0.15)
+                            elif number<11:
+                                self.driveMotors(0.15,0.15)
+                            elif number<16:
+                                self.driveMotors(0.15,-0.15)
+                        elif traceMap[y-1][x] == '|': # CAMINHO DE CIMA ESTÁ EXPLORADO
+                            self.driveMotors(-0.10,0.10)
+                        elif traceMap[y+1][x] == '|': # CAMINHO DE BAIXO ESTÁ EXPLORADO
+                            self.driveMotors(0.10,-0.10)
+                        else:
+                            self.driveMotors(-0.15,0.15)
+                    elif (-95 <= self.measures.compass <= -85): # SENTIDO DO MOVIMENTO - BAIXO
+                        if traceMap[y][x-1] == '-' and traceMap[y][x+1] == '-': # CAMINHO DE DIREITA E ESQUERDA ESTÁ EXPLORADO
+                            number = randint(0,15)
+                            if number<4:
+                                self.driveMotors(-0.15,0.15)
+                            elif number<11:
+                                self.driveMotors(0.15,0.15)
+                            elif number<16:
+                                self.driveMotors(0.15,-0.15)
+                        elif traceMap[y][x-1] == '-': # CAMINHO DA DIREITA ESTÁ EXPLORADO
+                            self.driveMotors(-0.10,0.10)
+                        elif traceMap[y][x+1] == '-': # CAMINHO DA ESQUERDA ESTÁ EXPLORADO
+                            self.driveMotors(0.10,-0.10)
+                        else:
+                            self.driveMotors(-0.15,0.15)
+                    elif (85 <= self.measures.compass <= 95): # SENTIDO DO MOVIMENTO - CIMA
+                        if traceMap[y][x-1] == '-' and traceMap[y][x+1] == '-': # CAMINHO DE DIREITA E ESQUERDA ESTÁ EXPLORADO
+                            number = randint(0,15)
+                            if number<4:
+                                self.driveMotors(-0.15,0.15)
+                            elif number<11:
+                                self.driveMotors(0.15,0.15)
+                            elif number<16:
+                                self.driveMotors(0.15,-0.15)
+                        elif traceMap[y][x-1] == '-': # CAMINHO DA ESQUERDA ESTÁ EXPLORADO
+                            self.driveMotors(0.10,-0.10)
+                        elif traceMap[y][x+1] == '-': # CAMINHO DA DIREITA ESTÁ EXPLORADO
+                            self.driveMotors(-0.10,0.10)
+                        else:
+                            self.driveMotors(-0.15,0.15)
+                # SE OS SENSORES DETETAREM CAMINHO EXPLORADO À ESQUERDA E NADA À DIREITA, ELE TENTA IR EM FRENTE SENÃO VAI PARA A ESQUERDA
+                elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                    if (-5 <= self.measures.compass <= 5): # SENTIDO DO MOVIMENTO - DIREITA
+                        if traceMap[y-1][x] == '|':
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                    elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): # SENTIDO DO MOVIMENTO - ESQUERDA
+                        if traceMap[y+1][x] == '|':
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                    elif (-95 <= self.measures.compass <= -85): # SENTIDO DO MOVIMENTO - BAIXO
+                        if traceMap[y][x+1] == '-':
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                    elif (85 <= self.measures.compass <= 95): # SENTIDO DO MOVIMENTO - CIMA
+                        if traceMap[y][x-1] == '-':
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                # SE OS SENSORES DETETAREM CAMINHO EXPLORADO À DIREITA E NADA À ESQUERDA, ELE TENTA IR EM FRENTE SENÃO VAI PARA A DIREITA
+                elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                    if (-5 <= self.measures.compass <= 5): # SENTIDO DO MOVIMENTO - DIREITA
+                        if traceMap[y+1][x] == '|':
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            # SEGUIR AS LINHAS NORMALMENTE
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                    elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): # SENTIDO DO MOVIMENTO - ESQUERDA
+                        if traceMap[y+1][x] == '|': 
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            # SEGUIR AS LINHAS NORMALMENTE
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                    elif (-95 <= self.measures.compass <= -85): # SENTIDO DO MOVIMENTO - BAIXO
+                        if traceMap[y][x-1] == '-': 
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            # SEGUIR AS LINHAS NORMALMENTE
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                    elif (85 <= self.measures.compass <= 95): # SENTIDO DO MOVIMENTO - CIMA
+                        if traceMap[y][x+1] == '-': 
+                            self.driveMotors(0.15,0.15)
+                            self.readSensors()
+                            # SEGUIR AS LINHAS NORMALMENTE
+                            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.12,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,0.12)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                                self.driveMotors(-0.09,0.15)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(0.15,-0.09)
+                            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                                self.driveMotors(-0.05,-0.05)
+                            else:
+                                self.driveMotors(0.05,0.05)
+                else: # SEGUIR AS LINHAS NORMALMENTE
+                    if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.15,0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.12,0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.15,0.12)
+                    elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                        self.driveMotors(-0.15,0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                        self.driveMotors(-0.09,0.15)
+                    elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.15,-0.09)
+                    elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                        self.driveMotors(0.15,-0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(-0.05,-0.05)
+                    else:
+                        self.driveMotors(0.05,0.05)
+            else: # SEGUIR AS LINHAS NORMALMENTE
+                    if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.15,0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.12,0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.15,0.12)
+                    elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                        self.driveMotors(-0.15,0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+                        self.driveMotors(-0.09,0.15)
+                    elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(0.15,-0.09)
+                    elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                        self.driveMotors(0.15,-0.15)
+                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+                        self.driveMotors(-0.05,-0.05)
+                    else:
+                        self.driveMotors(0.05,0.05)
 
 class Map():
     def __init__(self, filename):
