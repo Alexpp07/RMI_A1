@@ -44,6 +44,8 @@ class MyRob(CRobLinkAngs):
 
         posInitialX = ''
         posInitialY = ''
+        prevPosX = ''
+        prevPosY = ''
         count = 0
 
         while True:
@@ -55,6 +57,10 @@ class MyRob(CRobLinkAngs):
                 posInitialX = self.measures.x
                 posInitialY = self.measures.y
 
+            if prevPosX=='' and prevPosY=='':
+                prevPosX = self.measures.x
+                prevPosY = self.measures.y
+
             posMidX = 25
             posMidY = 11
 
@@ -63,6 +69,8 @@ class MyRob(CRobLinkAngs):
 
             x = int(posMidX) - int(round(difX,0))
             y = int(posMidY) + int(round(difY,0))
+
+            self.firstTime = True
 
             if -5 <= self.measures.compass <= 5: #DIREITA
                 if traceMap[y][x]==' ' and (traceMap[y][x-1]==' ' or traceMap[y][x-1]=='I') and (traceMap[y][x+1]==' ' or traceMap[y][x+1]=='I') and (traceMap[y-1][x]==' ' or traceMap[y-1][x]=='I') and (traceMap[y+1][x]==' ' or traceMap[y+1][x]=='I'):
@@ -103,7 +111,7 @@ class MyRob(CRobLinkAngs):
                 if self.measures.ground==0:
                     self.setVisitingLed(True)
                 count+=1
-                self.wander(traceMap,posInitialX,posInitialY,count)
+                self.wander(traceMap,posInitialX,posInitialY,prevPosX,prevPosY,count)
             elif state=='wait':
                 self.setReturningLed(True)
                 if self.measures.visitingLed==True:
@@ -117,10 +125,10 @@ class MyRob(CRobLinkAngs):
                 if self.measures.returningLed==True:
                     self.setReturningLed(False)
                 count+=1
-                self.wander(traceMap,posInitialX,posInitialY,count)
+                self.wander(traceMap,posInitialX,posInitialY,prevPosX,prevPosY,count)
             
 
-    def wander(self,traceMap,posInitialX,posInitialY,count):
+    def wander(self,traceMap,posInitialX,posInitialY,prevPosX,prevPosY,count):
         center_id = 0
         left_id = 1
         right_id = 2
@@ -148,9 +156,13 @@ class MyRob(CRobLinkAngs):
             x = int(posMidX) - int(round(difX,0))
             y = int(posMidY) + int(round(difY,0))
 
-            if count>=1000: # DEPOIS DE ELE FAZER 1000 MEDIÇÕES E ANDAR UM BOCADO PELO CAMINHO, COMEÇA A ANALISAR OS CAMINHOS ONDE JÁ ESTEVE
+            if abs(self.measures.x - prevPosX)>2 or abs(self.measures.y - prevPosY)>2 or self.firstTime==True:
+                print("comecei")
+                self.firstTime = False
+                # DEPOIS DE ELE FAZER 1000 MEDIÇÕES E ANDAR UM BOCADO PELO CAMINHO, COMEÇA A ANALISAR OS CAMINHOS ONDE JÁ ESTEVE
                 # SE ENCONTRAR CAMINHO PARA A DIREITA E PARA A ESQUERDA
                 # SE O DA DIREITA ESTIVER EXPLORADO, ELE VAI PARA A ESQUERDA E VICE VERSA
+                print([i for i in self.measures.lineSensor])
                 if self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                     if (-5 <= self.measures.compass <= 5): # SENTIDO DO MOVIMENTO - DIREITA
                         if traceMap[y-1][x] == '|' and traceMap[y+1][x] == '|': # CAMINHO DE CIMA E BAIXO ESTÁ EXPLORADO
@@ -226,6 +238,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -233,7 +249,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                     elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): # SENTIDO DO MOVIMENTO - ESQUERDA
@@ -248,6 +265,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -255,7 +276,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                     elif (-95 <= self.measures.compass <= -85): # SENTIDO DO MOVIMENTO - BAIXO
@@ -270,6 +292,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -277,7 +303,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                     elif (85 <= self.measures.compass <= 95): # SENTIDO DO MOVIMENTO - CIMA
@@ -292,6 +319,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -299,7 +330,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                 # SE OS SENSORES DETETAREM CAMINHO EXPLORADO À DIREITA E NADA À ESQUERDA, ELE TENTA IR EM FRENTE SENÃO VAI PARA A DIREITA
@@ -317,6 +349,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -324,7 +360,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                     elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): # SENTIDO DO MOVIMENTO - ESQUERDA
@@ -340,6 +377,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -347,7 +388,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                     elif (-95 <= self.measures.compass <= -85): # SENTIDO DO MOVIMENTO - BAIXO
@@ -362,15 +404,22 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                                print("Here")
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
                                 self.driveMotors(0.15,-0.09)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+                                print("Here")
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                     elif (85 <= self.measures.compass <= 95): # SENTIDO DO MOVIMENTO - CIMA
@@ -386,6 +435,10 @@ class MyRob(CRobLinkAngs):
                                 self.driveMotors(0.15,0.12)
                             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                                self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                                 self.driveMotors(-0.09,0.15)
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -393,7 +446,8 @@ class MyRob(CRobLinkAngs):
                             elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                                 self.driveMotors(0.15,-0.15)
                             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                                self.driveMotors(-0.05,-0.05)
+                                print("Andar para")
+                                self.driveMotors(-0.02,-0.02)
                             else:
                                 self.driveMotors(0.05,0.05)
                 else: # SEGUIR AS LINHAS NORMALMENTE
@@ -405,25 +459,10 @@ class MyRob(CRobLinkAngs):
                         self.driveMotors(0.15,0.12)
                     elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
                         self.driveMotors(-0.15,0.15)
-                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
-                        self.driveMotors(-0.09,0.15)
-                    elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
-                        self.driveMotors(0.15,-0.09)
-                    elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
-                        self.driveMotors(0.15,-0.15)
-                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                        self.driveMotors(-0.05,-0.05)
-                    else:
-                        self.driveMotors(0.05,0.05)
-            else: # SEGUIR AS LINHAS NORMALMENTE
-                    if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                        self.driveMotors(0.15,0.15)
-                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                        self.driveMotors(0.12,0.15)
-                    elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                        self.driveMotors(0.15,0.12)
-                    elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+                    elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
                         self.driveMotors(-0.15,0.15)
+                    elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+                         self.driveMotors(0.15,-0.15)
                     elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                         self.driveMotors(-0.09,0.15)
                     elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
@@ -431,9 +470,64 @@ class MyRob(CRobLinkAngs):
                     elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                         self.driveMotors(0.15,-0.15)
                     elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                        self.driveMotors(-0.05,-0.05)
+                        print("Andar para")
+                        self.driveMotors(-0.02,-0.02)
                     else:
                         self.driveMotors(0.05,0.05)
+            # else: # SEGUIR AS LINHAS NORMALMENTE
+            #         if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            #             self.driveMotors(0.15,0.15)
+            #         elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            #             self.driveMotors(0.12,0.15)
+            #         elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            #             self.driveMotors(0.15,0.12)
+            #         elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+            #             self.driveMotors(-0.15,0.15)
+            #         elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+            #             self.driveMotors(-0.09,0.15)
+            #         elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+            #             self.driveMotors(0.15,-0.09)
+            #         elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+            #             self.driveMotors(0.15,-0.15)
+            #         elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            #             print("Andar para")
+            #             self.driveMotors(-0.02,-0.02)
+            #             # self.driveMotors(-0.0,-0.0)
+            #         else:
+            #             self.driveMotors(0.05,0.05)
+
+    # def c1agent(self):
+    #     print("COORDENADAS")
+    #     print(self.measures.x,self.measures.y)
+    #     print("Entering C1 Agent")
+    #     print('Line Sensor ->',*self.measures.lineSensor, sep = ", ")
+
+    #     if self.measures.lineSensor[0] == '1' and self.measures.lineSensor[6] == '0':
+    #         if self.measures.lineSensor[5] == '1':
+    #             print("Rotating Slowly Left On New Condition")
+    #             self.driveMotors(0.0,+0.1)
+    #         else:
+    #             print("Rotating Left")
+    #             self.driveMotors(-0.1,+0.1)
+
+    #     elif self.measures.lineSensor[0] == '0' and self.measures.lineSensor[6] == '1':
+    #         if self.measures.lineSensor[1] == '1':
+    #             print("Rotating Slowly Right On New Condition")
+    #             self.driveMotors(+0.1,0.0)
+    #         else:
+    #             print("Rotating Right")
+    #             self.driveMotors(+0.1,-0.1)            
+    #     else:
+    #         if self.measures.lineSensor[1] == '1' and self.measures.lineSensor[5] == '0':
+    #             print("Rotating Slowly Left")
+    #             self.driveMotors(0.0,+0.1)
+            
+    #         elif self.measures.lineSensor[1] == '0' and self.measures.lineSensor[5] == '1':
+    #             print("Rotating Slowly Right")
+    #             self.driveMotors(+0.1,0.0)
+    #         else:
+    #             print("Going ahead")
+    #             self.driveMotors(0.15,0.15)
 
 class Map():
     def __init__(self, filename):
