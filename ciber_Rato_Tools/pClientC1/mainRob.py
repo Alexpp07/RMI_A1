@@ -72,35 +72,41 @@ class MyRob(CRobLinkAngs):
            or self.measures.irSensor[left_id]   > 5.0\
            or self.measures.irSensor[right_id]  > 5.0\
            or self.measures.irSensor[back_id]   > 5.0:
-            print('Rotate left')
             self.driveMotors(-0.1,+0.1)
         elif self.measures.irSensor[left_id]> 2.7:
-            print('Rotate slowly right')
             self.driveMotors(0.1,0.0)
         elif self.measures.irSensor[right_id]> 2.7:
-            print('Rotate slowly left')
             self.driveMotors(0.0,0.1)
         else:
-            print('Go')
-            print(f"LINE SENSOR -> {self.measures.lineSensor}")
-            if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.15,0.15)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.12,0.15)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.15,0.12)
-            elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
-                self.driveMotors(-0.15,0.15)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+            self.move_in_line()
+
+    def move_in_line(self):
+        if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            self.driveMotors(0.15,0.15)
+        elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            self.driveMotors(0.12,0.15)
+        elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            self.driveMotors(0.15,0.12)
+        elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1':
+            self.driveMotors(-0.15,0.15)
+        elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
+            self.driveMotors(-0.09,0.15)
+        elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='1':
                 self.driveMotors(-0.09,0.15)
-            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(0.15,-0.09)
-            elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
-                self.driveMotors(0.15,-0.15)
-            elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
-                self.driveMotors(-0.05,-0.05)
-            else:
-                self.driveMotors(0.05,0.05)
+        elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='0':
+                self.driveMotors(-0.15,0.15)
+        elif self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='1':
+            self.driveMotors(0.15,-0.15)
+        elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+            self.driveMotors(0.15,-0.09)
+        elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='0':
+            self.driveMotors(0.15,-0.09)
+        elif self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
+            self.driveMotors(0.15,-0.15)
+        elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='0' and self.measures.lineSensor[3]=='0' and self.measures.lineSensor[4]=='0' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
+            self.driveMotors(-0.02,-0.02)
+        else:
+            self.driveMotors(0.15,0.15)
 
 class Map():
     def __init__(self, filename):
