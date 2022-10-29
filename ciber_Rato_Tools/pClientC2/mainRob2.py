@@ -1,6 +1,5 @@
 
 from random import randint
-from re import X
 import sys
 
 from traitlets import Integer
@@ -176,12 +175,49 @@ class MyRob(CRobLinkAngs):
             y = int(posMidY) + int(round(difY,0))
 
             print(self.measures.lineSensor)
+            print("----------------------------")
+            print(self.intersections)
+            print("----------------------------")
+
 
             if self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
-                if (-5 <= self.measures.compass <= 5): #DIREITA
-                    """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-' and self.map2analyse[y][x+1]=='-'):
+                if (-10 <= self.measures.compass <= 10): #DIREITA
+                    if self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]=='-' and self.map2analyse[y][x+1]=='-':
+                        """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                        print("AQUIIIIIIdireita")
+                        pass
+                    elif (self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]!='-') and self.map2analyse[y][x+1]=='x':
                         self.driveMotors(0.10,0.10)
+                    elif (self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]!='-') and self.map2analyse[y][x+1]==' ':
+                        self.driveMotors(0.10,0.10)
+                        self.readSensors()
+                        if self.measures.lineSensor[3]=='1':
+                            if self.map2analyse[y-1][x] != '-':
+                                self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                            if self.map2analyse[y+1][x] != '-':
+                                self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                        else:
+                            if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]!='-':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.map2analyse[y-1][x]!='-' and self.map2analyse[y+1][x]=='-':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-':
+                                """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                                print("AQUIIIIIIdireita2")
+                                self.move_in_line()
+                    elif (self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]!='-') and self.map2analyse[y][x+1]=='-':
+                        if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]!='-':
+                            self.driveMotors(0.15,-0.15)
+                        elif self.map2analyse[y-1][x]!='-' and self.map2analyse[y+1][x]=='-':
+                            self.driveMotors(-0.15,0.15)
+                        elif self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-':
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            print("AQUIIIIIIdireita3")
+                            self.move_in_line()
                     elif (self.map2analyse[y-1][x]==' ' and self.map2analyse[y+1][x]==' ' and self.map2analyse[y][x+1]==' ') or self.map2analyse[y][x+1]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
@@ -192,68 +228,181 @@ class MyRob(CRobLinkAngs):
                                     self.intersections.append((y,x))
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y-1][x]=='x':
                         self.driveMotors(-0.1,0.1)
                     elif self.map2analyse[y+1][x]=='x':
                         self.driveMotors(0.1,-0.1)
                     else:
                         self.move_in_line()
-                elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): #ESQUERDA
-                    """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-' and self.map2analyse[y][x-1]=='-'):
+                elif (-180 <= self.measures.compass <= -170 or 170 <= self.measures.compass <= 180): #ESQUERDA
+                    if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-' and self.map2analyse[y][x-1]=='-':
+                        """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                        print("AQUIIIIIIesquerda")
+                        pass
+                    elif (self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]=='-') and self.map2analyse[y][x-1]=='x':
                         self.driveMotors(0.10,0.10)
+                    elif (self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]=='-') and self.map2analyse[y][x+1]==' ':
+                        self.driveMotors(0.10,0.10)
+                        self.readSensors()
+                        if self.measures.lineSensor[3]=='1':
+                            if self.map2analyse[y-1][x] != '-':
+                                self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                            if self.map2analyse[y+1][x] != '-':
+                                self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                        else:
+                            if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]!='-':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.map2analyse[y-1][x]!='-' and self.map2analyse[y+1][x]=='-':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-':
+                                """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                                print("AQUIIIIIIesquerda2")
+                                self.move_in_line()
+                    elif (self.map2analyse[y-1][x]=='-' or self.map2analyse[y+1][x]=='-') and self.map2analyse[y][x+1]=='-':
+                        if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]!='-':
+                            self.driveMotors(-0.15,0.15)
+                        elif self.map2analyse[y-1][x]!='-' and self.map2analyse[y+1][x]=='-':
+                            self.driveMotors(0.15,-0.15)
+                        elif self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]=='-':
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            print("AQUIIIIIIesquerda3")
+                            self.move_in_line()
                     elif (self.map2analyse[y-1][x]==' ' and self.map2analyse[y+1][x]==' ' and self.map2analyse[y][x-1]==' ') or self.map2analyse[y][x-1]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y-1][x]=='x':
                         self.driveMotors(0.1,-0.1)
                     elif self.map2analyse[y+1][x]=='x':
                         self.driveMotors(-0.1,0.1)
                     else:
                         self.move_in_line()
-                elif (-95 <= self.measures.compass <= -85): #BAIXO
-                    """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-' and self.map2analyse[y+1][x]=='-'):
+                elif (-100 <= self.measures.compass <= -80): #BAIXO
+                    if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-' and self.map2analyse[y+1][x]=='-':
+                        """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                        print("AQUIIIIIIbaixo")
+                        pass
+                    elif (self.map2analyse[y][x-1]=='-' or self.map2analyse[y][x+1]=='-') and self.map2analyse[y+1][x]=='x':
                         self.driveMotors(0.10,0.10)
+                    elif (self.map2analyse[y][x-1]=='-' or self.map2analyse[y][x+1]=='-') and self.map2analyse[y+1][x]==' ':
+                        self.driveMotors(0.10,0.10)
+                        self.readSensors()
+                        if self.measures.lineSensor[3]=='1':
+                            if self.map2analyse[y][x-1] != '-':
+                                self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                            if self.map2analyse[y][x+1] != '-':
+                                self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                        else:
+                            if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]!='-':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.map2analyse[y][x-1]!='-' and self.map2analyse[y][x+1]=='-':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-':
+                                """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                                print("AQUIIIIIIbaixo2")
+                                self.move_in_line()
+                    elif (self.map2analyse[y][x-1]=='-' or self.map2analyse[y][x+1]=='-') and self.map2analyse[y+1][x]=='-':
+                        if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]!='-':
+                            self.driveMotors(-0.15,0.15)
+                        elif self.map2analyse[y][x-1]!='-' and self.map2analyse[y][x+1]=='-':
+                            self.driveMotors(0.15,-0.15)
+                        elif self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-':
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            print("AQUIIIIIIbaixo3")
+                            self.move_in_line()
                     elif (self.map2analyse[y][x-1]==' ' and self.map2analyse[y][x+1]==' ' and self.map2analyse[y+1][x]==' ') or self.map2analyse[y+1][x]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y][x-1]=='x':
                         self.driveMotors(0.1,-0.1)
                     elif self.map2analyse[y][x+1]=='x':
                         self.driveMotors(-0.1,0.1)
                     else:
                         self.move_in_line()
-                elif (85 <= self.measures.compass <= 95): #CIMA
-                    """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-' and self.map2analyse[y-1][x]=='-'):
+                elif (80 <= self.measures.compass <= 100): #CIMA
+                    if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-' and self.map2analyse[y-1][x]=='-':
+                        """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                        print("AQUIIIIIIcima")
+                        self.move_in_line()
+                    elif (self.map2analyse[y][x-1]=='-' or self.map2analyse[y][x+1]=='-') and self.map2analyse[y-1][x]=='x':
                         self.driveMotors(0.10,0.10)
+                    elif (self.map2analyse[y][x-1]=='-' or self.map2analyse[y][x+1]=='-') and self.map2analyse[y-1][x]==' ':
+                        self.driveMotors(0.10,0.10)
+                        self.readSensors()
+                        if self.measures.lineSensor[3]=='1':
+                            if self.map2analyse[y][x-1] != '-':
+                                self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                            if self.map2analyse[y][x+1] != '-':
+                                self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
+                        else:
+                            if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]!='-':
+                                self.driveMotors(0.15,-0.15)
+                            elif self.map2analyse[y][x-1]!='-' and self.map2analyse[y][x+1]=='-':
+                                self.driveMotors(-0.15,0.15)
+                            elif self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-':
+                                """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                                print("AQUIIIIIIcima2")
+                                self.move_in_line()
+                    elif (self.map2analyse[y][x-1]=='-' or self.map2analyse[y][x+1]=='-') and self.map2analyse[y-1][x]=='-':
+                        if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]!='-':
+                            self.driveMotors(0.15,-0.15)
+                        elif self.map2analyse[y][x-1]!='-' and self.map2analyse[y][x+1]=='-':
+                            self.driveMotors(-0.15,0.15)
+                        elif self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]=='-':
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            print("AQUIIIIIIcima3")
+                            self.move_in_line()
                     elif (self.map2analyse[y][x-1]==' ' and self.map2analyse[y][x+1]==' ' and self.map2analyse[y-1][x]==' ') or self.map2analyse[y-1][x]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y][x-1]=='x':
                         self.driveMotors(-0.1,0.1)
                     elif self.map2analyse[y][x+1]=='x':
@@ -262,15 +411,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
             elif self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
                 if (-5 <= self.measures.compass <= 5): #DIREITA
-                    """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y-1][x]==' ' and self.map2analyse[y][x+1]==' ') or self.map2analyse[y][x+1]=='x':
+                    if self.map2analyse[y-1][x]=='-':
+                        if self.map2analyse[y][x+1]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(-0.15,0.15)      
+                    elif (self.map2analyse[y-1][x]==' ' and self.map2analyse[y][x+1]==' ') or self.map2analyse[y][x+1]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y-1][x]=='x':
                         self.driveMotors(-0.1,0.1)
                     elif self.map2analyse[y-1][x]=='-':
@@ -284,14 +443,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
                 elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): #ESQUERDA
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y+1][x]==' ' and self.map2analyse[y][x-1]==' ') or self.map2analyse[y][x-1]=='x':
+                    if self.map2analyse[y+1][x]=='-':
+                        if self.map2analyse[y][x-1]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(-0.15,0.15) 
+                    elif (self.map2analyse[y+1][x]==' ' and self.map2analyse[y][x-1]==' ') or self.map2analyse[y][x-1]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y+1][x]=='x':
                         self.driveMotors(-0.1,0.1)
                     elif self.map2analyse[y+1][x]=='-':
@@ -305,14 +475,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
                 elif (-95 <= self.measures.compass <= -85): #BAIXO
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y][x+1]==' ' and self.map2analyse[y+1][x]==' ') or self.map2analyse[y+1][x]=='x':
+                    if self.map2analyse[y][x+1]=='-':
+                        if self.map2analyse[y+1][x]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(-0.15,0.15) 
+                    elif (self.map2analyse[y][x+1]==' ' and self.map2analyse[y+1][x]==' ') or self.map2analyse[y+1][x]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y][x+1]=='x':
                         self.driveMotors(-0.1,0.1)
                     elif self.map2analyse[y][x+1]=='-':
@@ -326,14 +507,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
                 elif (85 <= self.measures.compass <= 95): #CIMA
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y][x-1]==' ' and self.map2analyse[y-1][x]==' ') or self.map2analyse[y-1][x]=='x':
+                    if self.map2analyse[y][x-1]=='-':
+                        if self.map2analyse[y-1][x]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(-0.15,0.15) 
+                    elif (self.map2analyse[y][x-1]==' ' and self.map2analyse[y-1][x]==' ') or self.map2analyse[y-1][x]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y][x-1]=='x':
                         self.driveMotors(-0.1,0.1)
                     elif self.map2analyse[y][x-1]=='-':
@@ -348,14 +540,25 @@ class MyRob(CRobLinkAngs):
             elif self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                 if (-5 <= self.measures.compass <= 5): #DIREITA
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y+1][x]==' ' and self.map2analyse[y][x+1]==' ') or self.map2analyse[y][x+1]=='x':
+                    if self.map2analyse[y+1][x]=='-':
+                        if self.map2analyse[y][x+1]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(0.15,-0.15)
+                    elif (self.map2analyse[y+1][x]==' ' and self.map2analyse[y][x+1]==' ') or self.map2analyse[y][x+1]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y+1][x]=='x':
                         self.driveMotors(0.1,-0.1)
                     elif self.map2analyse[y+1][x]=='-':
@@ -369,14 +572,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
                 elif (-180 <= self.measures.compass <= -175 or 175 <= self.measures.compass <= 180): #ESQUERDA
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y-1][x]==' ' and self.map2analyse[y][x-1]==' ') or self.map2analyse[y][x-1]=='x':
+                    if self.map2analyse[y-1][x]=='-':
+                        if self.map2analyse[y][x-1]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(0.15,-0.15)
+                    elif (self.map2analyse[y-1][x]==' ' and self.map2analyse[y][x-1]==' ') or self.map2analyse[y][x-1]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y-1][x]=='x':
                         self.driveMotors(0.1,-0.1)
                     elif self.map2analyse[y-1][x]=='-':
@@ -390,14 +604,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
                 elif (-95 <= self.measures.compass <= -85): #BAIXO
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y][x-1]==' ' and self.map2analyse[y+1][x]==' ') or self.map2analyse[y+1][x]=='x':
+                    if self.map2analyse[y][x-1]=='-':
+                        if self.map2analyse[y+1][x]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(0.15,-0.15)
+                    elif (self.map2analyse[y][x-1]==' ' and self.map2analyse[y+1][x]==' ') or self.map2analyse[y+1][x]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y][x-1]=='x':
                         self.driveMotors(0.1,-0.1)
                     elif self.map2analyse[y][x-1]=='-':
@@ -411,14 +636,25 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
                 elif (85 <= self.measures.compass <= 95): #CIMA
                     """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
-                    if (self.map2analyse[y][x+1]==' ' and self.map2analyse[y-1][x]==' ') or self.map2analyse[y-1][x]=='x':
+                    if self.map2analyse[y][x+1]=='-':
+                        if self.map2analyse[y-1][x]!='-':
+                            self.driveMotors(0.10,0.10)
+                            self.readSensors()
+                            if self.measures.lineSensor[3]=='1':
+                                pass
+                        else:
+                            """ACRESCENTAR CONDIÇÃO PARA PROCURAR OS CAMINHOS X MAIS PROXIMOS"""
+                            self.driveMotors(0.15,-0.15)
+                    elif (self.map2analyse[y][x+1]==' ' and self.map2analyse[y-1][x]==' ') or self.map2analyse[y-1][x]=='x':
                         self.driveMotors(0.10,0.10)
                         self.readSensors()
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
-                            self.driveMotors(0.-15,-0.10)
+                            self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y][x+1]=='x':
                         self.driveMotors(0.1,-0.1)
                     elif self.map2analyse[y][x+1]=='-':
@@ -432,7 +668,15 @@ class MyRob(CRobLinkAngs):
                         self.move_in_line()
             else:
                 self.move_in_line()
-    
+
+    def check_if_still_intersection(self,x,y): #Checks if (y,x) is still a point of intersection, that is, if the adjacent points still have x's
+        if self.map2analyse[y][x+1]=='x' or self.map2analyse[y][x-1]=='x' or self.map2analyse[y+1][x]=='x' or self.map2analyse[y-1][x]=='x':
+            return True
+        else:
+            self.intersections.remove((y,x))
+            return False
+
+
     def find_path_to_intersections(self,currentX,currentY):
         #Given a list of coordinates for the places i wanna go, I have to find the best path to the nearest intersection
         distance = -1
@@ -451,10 +695,7 @@ class MyRob(CRobLinkAngs):
                     bestY = savedY
         #Now distance is the real distance between two points
         self.intersections.remove((bestY,bestX))
-        #Now the robot should go for Y,X
-
-
-            
+        #Now the robot should go for Y,X    
 
     def move_in_line(self):
         if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
