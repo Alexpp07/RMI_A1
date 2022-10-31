@@ -35,12 +35,12 @@ shift $(($OPTIND-1))
 case $challenge in
     1)
         # how to call agent for challenge 1
-        python3 mainC1.py -h "$host" -p "$pos" -r "$robname"
+        python3 ciber_Rato_Tools/pClientC1/mainRob.py -h "$host" -p "$pos" -r "$robname"
         ;;
     2)
         # how to call agent for challenge 2
-        java mainC2 -h "$host" -p "$pos" -r "$robname" -f "$outfile"
-        mv your_mapfile $outfile.map             # if needed
+        python3 ciber_Rato_Tools/pClientC2/mainRob2.py -h "$host" -p "$pos" -r "$robname" -f "$outfile"
+        mv $outfile $outfile.map             # if needed
         ;;
     3)
         # how to call agent for challenge 3
@@ -48,4 +48,3 @@ case $challenge in
         mv your_pathfile $outfile.path           # if needed
         ;;
 esac
-
