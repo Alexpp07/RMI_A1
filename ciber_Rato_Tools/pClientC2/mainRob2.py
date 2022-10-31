@@ -1,5 +1,6 @@
 
 from random import randint
+from re import T
 import sys
 
 from traitlets import Integer
@@ -55,7 +56,7 @@ class MyRob(CRobLinkAngs):
         self.prevPosX = ''
         self.prevPosY = ''
         count = 0
-        self.firstTime = True
+        self.intersections = []
 
         while True:
             f = open("minimap.txt", 'w')
@@ -175,6 +176,10 @@ class MyRob(CRobLinkAngs):
             y = int(posMidY) + int(round(difY,0))
 
             print(self.measures.lineSensor)
+            print("----------------------------")
+            print(self.intersections)
+            print("----------------------------")
+
 
             if self.measures.lineSensor[0]=='1' and self.measures.lineSensor[1]=='1' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='1' and self.measures.lineSensor[6]=='1':
                 if (-10 <= self.measures.compass <= 10): #DIREITA
@@ -190,8 +195,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]!='-':
                                 self.driveMotors(0.15,-0.15)
@@ -216,8 +225,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y-1][x]=='x':
@@ -239,8 +252,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             if self.map2analyse[y-1][x]=='-' and self.map2analyse[y+1][x]!='-':
                                 self.driveMotors(-0.15,0.15)
@@ -265,8 +282,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y-1][x]=='x':
@@ -288,8 +309,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]!='-':
                                 self.driveMotors(-0.15,0.15)
@@ -314,8 +339,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y][x-1]=='x':
@@ -337,8 +366,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             if self.map2analyse[y][x-1]=='-' and self.map2analyse[y][x+1]!='-':
                                 self.driveMotors(0.15,-0.15)
@@ -363,8 +396,12 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,-0.10)
                     elif self.map2analyse[y][x-1]=='x':
@@ -390,6 +427,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y-1][x]=='x':
@@ -420,6 +459,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y+1][x]=='x':
@@ -450,6 +491,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y][x+1]=='x':
@@ -480,6 +523,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(-0.15,0.15)
                     elif self.map2analyse[y][x-1]=='x':
@@ -511,6 +556,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y+1][x] != '-':
                                 self.map2analyse[y+1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y+1][x]=='x':
@@ -541,6 +588,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y-1][x] != '-':
                                 self.map2analyse[y-1][x] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y-1][x]=='x':
@@ -571,6 +620,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x-1] != '-':
                                 self.map2analyse[y][x-1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y][x-1]=='x':
@@ -601,6 +652,8 @@ class MyRob(CRobLinkAngs):
                         if self.measures.lineSensor[3]=='1':
                             if self.map2analyse[y][x+1] != '-':
                                 self.map2analyse[y][x+1] = 'x'
+                                if (y,x) not in self.intersections:
+                                    self.intersections.append((y,x))
                         else:
                             self.driveMotors(0.15,-0.15)
                     elif self.map2analyse[y][x+1]=='x':
@@ -617,7 +670,130 @@ class MyRob(CRobLinkAngs):
             else:
                 self.move_in_line()
 
-            
+    def check_if_still_intersection(self,x,y): #Checks if (y,x) is still a point of intersection, that is, if the adjacent points still have x's
+        if self.map2analyse[y][x+1]=='x' or self.map2analyse[y][x-1]=='x' or self.map2analyse[y+1][x]=='x' or self.map2analyse[y-1][x]=='x':
+            return True
+        else:
+            self.intersections.remove((y,x))
+            return False
+
+
+    def get_nearest_intersection(self,currentX,currentY):
+        #Given a list of coordinates for the places i wanna go, I have to find the nearest intersection
+        distance = -1
+        bestX = ''
+        bestY = ''
+        for (savedY,savedX) in self.intersections:
+            temp = sqrt(((savedY - currentY)**2) + ((savedX - currentX)**2))
+            if distance == -1:
+                distance = temp
+                bestX = savedX
+                bestY = savedY
+            else:
+                if temp < distance:
+                    distance = temp
+                    bestX = savedX
+                    bestY = savedY
+        #Now distance is the real distance between two points
+        self.intersections.remove((bestY,bestX))
+        #Now the robot should go for Y,X    
+        bin_matrix = []
+        for y in self.map2analyse:
+            temp = []
+            for t in y:
+                if t == '-':
+                    temp.append('1')
+                else:
+                    temp.append('0')
+            bin_matrix.append(temp)
+
+        self.find_path(currentX,currentY,bestX,bestY,bin_matrix)
+
+
+    #Given a matrix of 0's and 1's, bin_matrix, i want to find the path from bin_matrix[currentY][currentX] to bin_matrix[bestY][bestX] only passing through 1's
+    def find_path(self,currentX,currentY,bestX,bestY,bin_matrix):
+        
+        node_initial = Node(None,(currentY,currentX),0,0,0)
+        end_node = Node(None,(bestY,bestX),0,0,0)
+
+        open_list=[]
+        closed_list = []
+
+        open_list.append(node_initial)
+
+        while len(open_list) > 0:
+            current_node = open_list[0]
+            current_index = 0
+            for index,item in enumerate(open_list):
+                if item.f < current_node.f:
+                    current_node = item
+                    current_index = index
+
+            open_list.pop(current_index)
+            closed_list.append(current_node)
+
+            if current_node == end_node:
+                path = []
+                current = current_node
+                while current is not None:
+                    path.append(current.position)
+                    current = current.parent
+                return path[::-1]
+
+            children = []
+            for new_position in [(0,-1),(0,1),(-1,0),(1,0)]:
+                node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
+                if node_position[0] > (len(bin_matrix) - 1) or node_position[0] < 0 or node_position[1] > (len(bin_matrix[len(bin_matrix)-1]) -1) or node_position[1] < 0:
+                    continue
+                if bin_matrix[node_position[0]][node_position[1]] == '0':
+                    continue
+                new_node = Node(current_node, node_position)
+                children.append(new_node)
+
+            for child in children:
+                for closed_child in closed_list:
+                    if child == closed_child:
+                        continue
+                child.g = current_node.g + 1
+                child.h = sqrt(((child.position[0] - end_node.position[0])**2) + ((child.position[1] - end_node.position[1])**2))
+                child.f = child.g + child.h
+                for open_node in open_list:
+                    if child == open_node and child.g > open_node.g:
+                        continue
+                open_list.append(child)
+
+
+
+        
+        
+
+
+    # def find_path(self,currentX,currentY,goalX,goalY):
+    #     #This function will find the path from the current position to the goal position
+    #     #The path will be saved in a list of coordinates
+        
+    #Function that, given a current position (currentY,currentX) will find the best path to the goal position (goalY,goalX)
+    #The available paths are marked with '-' and '|' on the 'mini.txt' file and the path must only include coordinates that have those characters
+    #The path will be saved in a list of coordinates
+    # def find_path(self,currentX,currentY,goalX,goalY):
+    #     #This function will find the path from the current position to the goal position
+    #     #The path will be saved in a list of coordinates
+    #     self.path = []
+    #     self.path.append((currentY,currentX))
+    #     if currentX == goalX and currentY == goalY:
+    #         return
+    #     if currentX < goalX:
+    #         self.find_path(currentX+1,currentY,goalX,goalY)
+    #     elif currentX > goalX:
+    #         self.find_path(currentX-1,currentY,goalX,goalY)
+    #     elif currentY < goalY:
+    #         self.find_path(currentX,currentY+1,goalX,goalY)
+    #     elif currentY > goalY:
+    #         self.find_path(currentX,currentY-1,goalX,goalY)
+    #     else:
+    #         return
+    #     self.path.append((currentY,currentX))
+    #     return
 
     def move_in_line(self):
         if self.measures.lineSensor[0]=='0' and self.measures.lineSensor[1]=='0' and self.measures.lineSensor[2]=='1' and self.measures.lineSensor[3]=='1' and self.measures.lineSensor[4]=='1' and self.measures.lineSensor[5]=='0' and self.measures.lineSensor[6]=='0':
@@ -673,6 +849,15 @@ class Map():
                            None
                
            i=i+1
+
+class Node():
+    def __init__(self,parent=None,position=None,g=0,h=0,f=0):
+        self.parent = None
+        self.position = None
+        self.g = 0
+        self.h = 0
+        self.f = 0
+    
 
 
 rob_name = "pClient1"
