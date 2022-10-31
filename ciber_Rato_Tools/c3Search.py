@@ -68,6 +68,8 @@ def found_all_beacons(self,initialX,initialY):
                 final_path = final_path + path[1:]
             else:
                 final_path = final_path + path
+            initialX = coordX
+            initialY = coordY
     print("PATH FINAL: ",final_path)
 
 def find_next_destiny(self,initialX,initialY):
