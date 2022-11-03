@@ -44,7 +44,7 @@ case $challenge in
         ;;
     3)
         # how to call agent for challenge 3
-        ./mainC3 -h "$host" -p "$pos" -r "$robname" -f "$outfile"
-        mv your_pathfile $outfile.path           # if needed
+        python3 ciber_Rato_Tools/pClientC2/mainRob3.py -h "$host" -p "$pos" -r "$robname" -f "$outfile"
+        mv $outfile $outfile.map           # if needed
         ;;
 esac
